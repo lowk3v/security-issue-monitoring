@@ -12,6 +12,6 @@ def rss_fetch():
                 'title': entry.title,
                 'summary': entry.summary,
                 'link': entry.link,
-                'published': entry.published,
+                'published': entry.get('published', entry.get('updated_date', '')),
             })
     return results
