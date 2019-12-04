@@ -14,12 +14,12 @@ from re import sub
 def send_to_telegram(text_json):
     is_post, md5 = _is_posted(text_json.get('title', ''))
     if is_post:
-        return {}
+        return {'posted': True}
     text_json = pre_handle_message(text_json)
     text = _format_message(text_json)
-    send_api = f'https://api.telegram.org/bot{setting.SecBlogBot}/sendMessage'
+    send_api = f'https://api.telegram.org/bot{setting.__SecBlogBot__}/sendMessage'
     post_data = {
-        'chat_id': setting.bot_chat_id,
+        'chat_id': setting.__bot_chat_id__,
         'text': text,
         'parse_mode': 'html'
     }
@@ -34,16 +34,16 @@ def _format_message(text_json):
     published = published.replace(tzinfo=pytz.timezone('Asia/Ho_Chi_Minh'))
     published = published.strftime('%a, %d %b %Y')
     return f'''
-[{published}] <b>{text_json.get('provider', '')}: {text_json.get('title', {})}</b>
+[{published}] <b>{text_json.get('provider', '')} - {text_json.get('title', {})}</b>
 {text_json.get('summary', '')} <a href="{text_json.get('link', {})}">see more ...</a>
 '''
 
 
 def _is_posted(title):
-    if not path.exists('posted.log'):
-        open('posted.log', 'w+').close()
+    if not path.exists('logs/posted.log'):
+        open('logs/posted.log', 'w+').close()
     md5 = hashlib.md5(title.encode("utf-8")).hexdigest()
-    if md5 in open('posted.log', 'r+').read():
+    if md5 in open('logs/posted.log', 'r+').read():
         return True, None
     return False, md5
 

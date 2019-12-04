@@ -2,15 +2,25 @@ import logging
 import logging.handlers
 
 
-class Logger(object):
-    logger = None
-
+class Logger:
     def __init__(self):
-        logger = logging.getLogger('Logger')
-        logger.setLevel(logging.DEBUG)
-        handler = logging.handlers.RotatingFileHandler("info.log",
-                                                       maxBytes=1000000,
-                                                       backupCount=20)
         formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
+
+        access_handler = logging.handlers.RotatingFileHandler(
+            "logs/access.log",
+            maxBytes=1000000,
+            backupCount=20)
+        error_handler = logging.handlers.RotatingFileHandler(
+            "logs/error.log",
+            maxBytes=1000000,
+            backupCount=20)
+
+        access_handler.setFormatter(formatter)
+
+        self.error = logging.getLogger('error')
+        self.error.setLevel(logging.DEBUG)
+        self.error.addHandler(error_handler)
+
+        self.access = logging.getLogger('access')
+        self.access.setLevel(logging.INFO)
+        self.access.addHandler(access_handler)
