@@ -2,13 +2,17 @@ from abc import ABC
 
 import setting
 from requests import post
-import pytz
+from pytz import timezone
 from datetime import datetime
 import hashlib
 from os import path
 from pandas import to_datetime
 from html.parser import HTMLParser
 from re import sub
+from os import environ
+
+HOME = environ.get('NEWSFEED_HOME', '.') + '/'
+posted_log = HOME+'logs/posted.log'
 
 
 def send_to_telegram(text_json):
@@ -31,7 +35,7 @@ def send_to_telegram(text_json):
 
 def _format_message(text_json):
     published = to_datetime(text_json.get('published', datetime.now()))
-    published = published.replace(tzinfo=pytz.timezone('Asia/Ho_Chi_Minh'))
+    published = published.replace(tzinfo=timezone('Asia/Ho_Chi_Minh'))
     published = published.strftime('%a, %d %b %Y')
     return f'''
 [{published}] <b>{text_json.get('provider', '')} - {text_json.get('title', {})}</b>
@@ -40,16 +44,16 @@ def _format_message(text_json):
 
 
 def _is_posted(title):
-    if not path.exists('logs/posted.log'):
-        open('logs/posted.log', 'w+').close()
+    if not path.exists(posted_log):
+        open(posted_log, 'w+').close()
     md5 = hashlib.md5(title.encode("utf-8")).hexdigest()
-    if md5 in open('logs/posted.log', 'r+').read():
+    if md5 in open(posted_log, 'r+').read():
         return True, None
     return False, md5
 
 
 def _update_log(md5):
-    open('posted.log', 'a+').write(md5 + '\n')
+    open(posted_log, 'a+').write(md5 + '\n')
 
 
 class MLStripper(HTMLParser, ABC):
