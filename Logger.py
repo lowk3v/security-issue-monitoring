@@ -4,6 +4,7 @@ from os import environ
 
 class Logger:
     def __init__(self):
+        environ['TZ'] = 'Asia/Ho_Chi_Minh'
         HOME = environ.get('NEWSFEED_HOME', '.') + '/'
         formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 

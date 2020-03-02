@@ -30,7 +30,10 @@ def send_to_telegram(text_json):
     response = post(send_api, data=post_data)
     if response.json().get('ok', False):
         _update_log(md5)
-    return response.json()
+        return response.json()
+    err = response.json()
+    err['content'] = text
+    return err 
 
 
 def _format_message(text_json):
@@ -38,8 +41,7 @@ def _format_message(text_json):
     published = published.replace(tzinfo=timezone('Asia/Ho_Chi_Minh'))
     published = published.strftime('%a, %d %b %Y')
     return f'''
-[{published}] <b>{text_json.get('provider', '')} - {text_json.get('title', {})}</b>
-{text_json.get('summary', '')} <a href="{text_json.get('link', {})}">see more ...</a>
+[{published}] <b>{text_json.get('provider', '')} - {text_json.get('title', {})}</b>  <a href="{text_json.get('link', {})}">see more ...</a>
 '''
 
 
@@ -76,15 +78,22 @@ def _strip_tags(html):
     s.feed(html)
     return s.get_data()
 
+def _strip_special_char(before):
+    temp = sub('^[^\w]+', '', before)
+    after = sub('[=<>/]+', '', temp)
+    return after
 
 def pre_handle_message(text_json):
+    title = text_json.get('title', '')
     summary = text_json.get('summary', '')
     # Escape HTML tags
     summary = _strip_tags(summary)
-    summary = summary.replace('/', '')
+    summary = _strip_special_char(title)
+
+    title = _strip_tags(title)
+    title = _strip_special_char(title)
 
     # Beauty
-    summary = sub('^[^\w]+', '', summary)
-
     text_json['summary'] = summary[:270]
+    text_json['title'] = title
     return text_json
