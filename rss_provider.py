@@ -14,7 +14,9 @@ def rss_fetch():
             try:
                 published = entry.get('published',
                                 entry.get('updated_date', 
-                                    entry.get('updated', datetime.now())
+                                    entry.get('updated',
+                                          entry.get('pubDate', datetime.now())
+                                    )
                                 )
                             )
                 results.append({

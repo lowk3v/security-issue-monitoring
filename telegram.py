@@ -21,9 +21,9 @@ def send_to_telegram(text_json):
         return {'posted': True}
     text_json = pre_handle_message(text_json)
     text = _format_message(text_json)
-    send_api = f'https://api.telegram.org/bot{setting.__SecBlogBot__}/sendMessage'
+    send_api = f'https://api.telegram.org/bot{setting.SecBlogBot}/sendMessage'
     post_data = {
-        'chat_id': setting.__bot_chat_id__,
+        'chat_id': setting.bot_chat_id,
         'text': text,
         'parse_mode': 'html'
     }
